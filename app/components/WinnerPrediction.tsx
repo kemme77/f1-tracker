@@ -33,6 +33,10 @@ export default async function WinnerPrediction({ race }: Props) {
     getCircuitWinners(race.Circuit.circuitId).catch(() => [] as Race[]),
   ]);
 
+  const currentDriverMeta = new Map(
+    standings.map((row) => [row.Driver.driverId, row]),
+  );
+
   const scores = new Map<string, DriverScore>();
   function ensure(
     id: string,
@@ -66,14 +70,17 @@ export default async function WinnerPrediction({ race }: Props) {
   circuitWinners.slice(0, 8).forEach((winnerRace, idx) => {
     const r = winnerRace.Results?.[0];
     if (!r) return;
+    const currentRow = currentDriverMeta.get(r.Driver.driverId);
+    if (!currentRow) return;
+
     const recencyMult = 1 - idx * 0.1; // recent first
     const bonus = Math.max(2, Math.round(HISTORY_WEIGHT * recencyMult));
-    const team = r.Constructor;
+    const team = currentRow.Constructors[0];
     const s = ensure(
       r.Driver.driverId,
       `${r.Driver.givenName} ${r.Driver.familyName}`,
-      team.name,
-      team.constructorId,
+      team?.name ?? "—",
+      team?.constructorId ?? "",
     );
     s.points += bonus;
     s.reasons.push(`Won here ${winnerRace.season} (+${bonus})`);

@@ -22,12 +22,20 @@ function formatDelta(ms: number): string {
 
 export default function Countdown({ targetISO }: Props) {
   const target = new Date(targetISO).getTime();
-  const [now, setNow] = useState<number>(() => Date.now());
+  const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
+    // set initial client time and start ticking (deferred to avoid sync setState in effect)
+    setTimeout(() => setNow(Date.now()), 0);
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
   }, []);
+
+  if (now === null) {
+    // deterministic placeholder rendered both server and initial client render
+    const isoPlaceholder = new Date(targetISO).toISOString().replace("T", " ").replace("Z", " UTC");
+    return <span className="font-mono tabular-nums tracking-tight">{isoPlaceholder}</span>;
+  }
 
   return (
     <span className="font-mono tabular-nums tracking-tight">

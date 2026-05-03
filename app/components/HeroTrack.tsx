@@ -2,12 +2,12 @@ import type { Race } from "@/lib/f1";
 import { raceStartUTC } from "@/lib/f1";
 import { getTrackPath } from "@/lib/circuitGeo";
 import TrackSVG from "./TrackSVG";
-import Countdown from "./Countdown";
+import CountdownRefresher from "./CountdownRefresher";
 import Sessions from "./Sessions";
 
-type Props = { race: Race; isCurrent: boolean };
+type Props = { race: Race; isPast: boolean };
 
-export default async function HeroTrack({ race, isCurrent }: Props) {
+export default async function HeroTrack({ race, isPast }: Props) {
   const path = await getTrackPath(race.Circuit.circuitId);
   const startISO = raceStartUTC(race)?.toISOString() ?? null;
 
@@ -20,7 +20,7 @@ export default async function HeroTrack({ race, isCurrent }: Props) {
             <span>Round {race.round}</span>
             <span aria-hidden>·</span>
             <span>{race.season}</span>
-            {!isCurrent && (
+            {isPast && (
               <span className="ml-1 rounded-full border border-border px-2 py-0.5 text-[10px] tracking-wider text-muted">
                 past
               </span>
@@ -34,13 +34,13 @@ export default async function HeroTrack({ race, isCurrent }: Props) {
             {race.Circuit.Location.locality}, {race.Circuit.Location.country}
           </p>
 
-          {isCurrent && startISO && (
+          {!isPast && startISO && (
             <div className="mt-4 rounded-xl border border-f1/20 bg-f1/5 px-3 py-2">
               <p className="text-[10px] uppercase tracking-widest text-f1">
                 Lights out in
               </p>
               <p className="font-mono text-lg font-semibold text-f1">
-                <Countdown targetISO={startISO} />
+                <CountdownRefresher round={race.round} initialISO={startISO} />
               </p>
             </div>
           )}

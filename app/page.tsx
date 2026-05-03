@@ -5,6 +5,7 @@ import Standings from "./components/Standings";
 import ScheduleTimeline from "./components/ScheduleTimeline";
 import RaceSelector from "./components/RaceSelector";
 import LiveTicker from "./components/LiveTicker";
+import StartingGrid from "./components/StartingGrid";
 import WinnerPrediction from "./components/WinnerPrediction";
 import {
   getRaceWithResults,
@@ -50,20 +51,14 @@ export default async function Home({
   const selected =
     schedule.find((r) => r.round === roundParam) ?? currentRace;
 
-  const isCurrent = selected.round === currentRace.round;
-  const past = isPastRace(selected);
-
+  const isPast = isPastRace(selected);
   // Last completed race (for podium when viewing current/future race)
   const lastCompleted = [...schedule]
     .reverse()
     .find((r) => isPastRace(r));
 
-  // Pick which race's results to show in podium card.
-  // - If selected is past, show selected.
-  // - Else show last completed.
-  const podiumRound = past
-    ? selected.round
-    : lastCompleted?.round ?? null;
+  const podiumRound = lastCompleted?.round ?? null;
+  const podiumTitle = podiumRound ? "Last Race" : "Result";
 
   const podiumRacePromise = podiumRound
     ? getRaceWithResults(podiumRound)
@@ -92,20 +87,26 @@ export default async function Home({
 
       <main className="mx-auto max-w-6xl space-y-8 px-6 py-8">
         <Suspense fallback={<Skeleton className="h-112" />}>
-          <HeroTrack race={selected} isCurrent={isCurrent} />
+          <HeroTrack race={selected} isPast={isPast} />
         </Suspense>
 
         <Suspense fallback={<Skeleton className="h-32" />}>
           <ScheduleTimeline selectedRound={selected.round} />
         </Suspense>
 
-        <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <section className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
           <Suspense fallback={<Skeleton className="h-56" />}>
-            <PodiumWrap promise={podiumRacePromise} title={past ? "Result" : "Last Race"} />
+            <PodiumWrap promise={podiumRacePromise} title={podiumTitle} />
           </Suspense>
+
+          <Suspense fallback={<Skeleton className="h-56" />}>
+            <StartingGrid race={selected} />
+          </Suspense>
+
           <Suspense fallback={<Skeleton className="h-56" />}>
             <WinnerPrediction race={selected} />
           </Suspense>
+          
           <LiveTicker />
         </section>
 

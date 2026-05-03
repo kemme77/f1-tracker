@@ -1,5 +1,5 @@
 const BASE = "https://api.jolpi.ca/ergast/f1";
-const REVALIDATE_SECONDS = 300;
+const REVALIDATE_SECONDS = 60;
 
 async function jget<T>(path: string): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
@@ -69,6 +69,20 @@ export type RaceResult = {
   FastestLap?: { Time: { time: string } };
 };
 
+export type QualifyingResult = {
+  position: string;
+  number: string;
+  Driver: Driver;
+  Constructor: Constructor;
+  Q1?: string;
+  Q2?: string;
+  Q3?: string;
+};
+
+export type QualifyingEntry = QualifyingResult & {
+  status?: string; // e.g. 'DQ', 'DNS', etc.
+};
+
 export type DriverStanding = {
   position: string;
   points: string;
@@ -85,6 +99,46 @@ export type ConstructorStanding = {
 };
 
 type MRData<T> = { MRData: T };
+
+function toNumericPosition(position: string | undefined): number {
+  const parsed = Number.parseInt(position ?? "", 10);
+  return Number.isFinite(parsed) ? parsed : Number.MAX_SAFE_INTEGER;
+}
+
+function hasAnyLapTime(entry: QualifyingEntry): boolean {
+  return Boolean(entry.Q1 || entry.Q2 || entry.Q3);
+}
+
+function isQualifyingDQ(entry: QualifyingEntry): boolean {
+  if (entry.status) return false;
+  return (Boolean(entry.Q3) && (!entry.Q1 || !entry.Q2)) || (Boolean(entry.Q2) && !entry.Q1);
+}
+
+function sortByOriginalQualifyingPosition(a: QualifyingEntry, b: QualifyingEntry): number {
+  return toNumericPosition(a.position) - toNumericPosition(b.position);
+}
+
+function renumberGrid(entries: QualifyingEntry[]): QualifyingEntry[] {
+  const racing = entries.filter(
+    (entry) => entry.status !== "PIT" && entry.status !== "DNS" && entry.status !== "DQ",
+  );
+  const pit = entries.filter((entry) => entry.status === "PIT");
+  const dns = entries.filter((entry) => entry.status === "DNS");
+  const dq = entries.filter((entry) => entry.status === "DQ");
+
+  racing.sort(sortByOriginalQualifyingPosition);
+  pit.sort(sortByOriginalQualifyingPosition);
+  dns.sort(sortByOriginalQualifyingPosition);
+  dq.sort(sortByOriginalQualifyingPosition);
+
+  let position = 1;
+  for (const entry of racing) entry.position = String(position++);
+  for (const entry of pit) entry.position = String(position++);
+  for (const entry of dns) entry.position = String(position++);
+  for (const entry of dq) entry.position = String(position++);
+
+  return [...racing, ...pit, ...dns, ...dq];
+}
 
 export async function getDriverStandings(): Promise<DriverStanding[]> {
   const data = await jget<
@@ -122,6 +176,68 @@ export async function getRaceWithResults(round: string): Promise<Race | null> {
     `/current/${round}/results.json`,
   );
   return data.MRData.RaceTable.Races[0] ?? null;
+}
+
+export async function getRaceGrid(round: string): Promise<QualifyingEntry[]> {
+  try {
+    const data = await jget<
+      MRData<{ RaceTable: { Races: (Race & { QualifyingResults?: QualifyingResult[] })[] } }>
+    >(`/current/${round}/qualifying.json`);
+    const race = data.MRData.RaceTable.Races[0];
+    const quals: QualifyingEntry[] = (race?.QualifyingResults ?? []).map((q) => ({ ...q }));
+
+    // If race has run, RaceResult.grid is authoritative starting grid (post penalties/DQ)
+    let gridByDriver: Map<string, string> | null = null;
+    try {
+      const resultsRace = await getRaceWithResults(round);
+      if (resultsRace?.Results && resultsRace.Results.length > 0) {
+        gridByDriver = new Map<string, string>();
+        for (const r of resultsRace.Results) {
+          if (r.Driver?.driverId) gridByDriver.set(r.Driver.driverId, r.grid);
+        }
+      }
+    } catch {
+      // ignore: race not run yet, use qualifying-only logic below
+    }
+
+    if (gridByDriver) {
+      for (const q of quals) {
+        const g = gridByDriver.get(q.Driver.driverId);
+        if (g === undefined) {
+          q.status = "DNS";
+          continue;
+        }
+        if (g === "0") {
+          q.status = "PIT";
+        } else {
+          q.position = g;
+        }
+      }
+      return renumberGrid(quals);
+    }
+
+    // Quali-only DQ detection: later-stage times without the prior stage are not valid progression.
+    for (const q of quals) {
+      if (isQualifyingDQ(q)) q.status = "DQ";
+    }
+
+    // Fallback: duplicated positions where only one entry is missing all times.
+    const byPos = new Map<string, QualifyingEntry[]>();
+    for (const q of quals) {
+      const list = byPos.get(q.position) ?? [];
+      list.push(q);
+      byPos.set(q.position, list);
+    }
+    for (const list of byPos.values()) {
+      if (list.length <= 1) continue;
+      const withNoTimes = list.filter((e) => !hasAnyLapTime(e));
+      if (withNoTimes.length === 1) withNoTimes[0].status = "DQ";
+    }
+
+    return renumberGrid(quals);
+  } catch {
+    return [];
+  }
 }
 
 export async function getCircuitWinners(

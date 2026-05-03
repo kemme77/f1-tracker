@@ -65,7 +65,7 @@ export default async function Standings() {
           Driver Standings
         </h3>
         <ul className="divide-y divide-zinc-100 dark:divide-zinc-800">
-          {drivers.slice(0, 10).map((s) => (
+          {drivers.slice(0, 22).map((s) => (
             <DriverRow key={s.Driver.driverId} s={s} />
           ))}
         </ul>

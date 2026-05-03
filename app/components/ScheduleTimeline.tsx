@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { getSchedule, type Race } from "@/lib/f1";
 import { flagFor } from "@/lib/flags";
+import { formatShortDate, formatTime } from "@/lib/formatDate";
 
 function shortDate(dateISO: string): string {
   const d = new Date(dateISO);
   if (Number.isNaN(d.getTime())) return dateISO;
-  return d.toLocaleDateString(undefined, { day: "2-digit", month: "short" });
+  return formatShortDate(dateISO);
 }
 
 function isPast(race: Race): boolean {
@@ -57,7 +58,8 @@ export default async function ScheduleTimeline({
                   {r.Circuit.Location.country}
                 </span>
                 <span className="truncate text-xs text-muted">
-                  {shortDate(r.date)}
+                  <span className="block">{shortDate(r.date)}</span>
+                  <span className="block">{r.time ? formatTime(`${r.date}T${r.time.replace(/Z?$/, "Z")}`) : ""}</span>
                 </span>
               </Link>
             </li>
