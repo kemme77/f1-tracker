@@ -86,20 +86,6 @@ export type ConstructorStanding = {
 
 type MRData<T> = { MRData: T };
 
-export async function getNextRace(): Promise<Race | null> {
-  const data = await jget<
-    MRData<{ RaceTable: { Races: Race[] } }>
-  >("/current/next.json");
-  return data.MRData.RaceTable.Races[0] ?? null;
-}
-
-export async function getLastRaceResults(): Promise<Race | null> {
-  const data = await jget<
-    MRData<{ RaceTable: { Races: Race[] } }>
-  >("/current/last/results.json");
-  return data.MRData.RaceTable.Races[0] ?? null;
-}
-
 export async function getDriverStandings(): Promise<DriverStanding[]> {
   const data = await jget<
     MRData<{
@@ -127,6 +113,23 @@ export async function getConstructorStandings(): Promise<ConstructorStanding[]> 
 export async function getSchedule(): Promise<Race[]> {
   const data = await jget<MRData<{ RaceTable: { Races: Race[] } }>>(
     "/current.json",
+  );
+  return data.MRData.RaceTable.Races;
+}
+
+export async function getRaceWithResults(round: string): Promise<Race | null> {
+  const data = await jget<MRData<{ RaceTable: { Races: Race[] } }>>(
+    `/current/${round}/results.json`,
+  );
+  return data.MRData.RaceTable.Races[0] ?? null;
+}
+
+export async function getCircuitWinners(
+  circuitId: string,
+  limit = 30,
+): Promise<Race[]> {
+  const data = await jget<MRData<{ RaceTable: { Races: Race[] } }>>(
+    `/circuits/${circuitId}/results/1.json?limit=${limit}`,
   );
   return data.MRData.RaceTable.Races;
 }

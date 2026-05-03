@@ -22,7 +22,8 @@ type FeatureCollection = {
 };
 
 export type TrackPath = {
-  d: string;
+  sectors: [string, string, string];
+  start: { x: number; y: number };
   viewBox: string;
   meta: {
     name?: string;
@@ -34,14 +35,13 @@ export type TrackPath = {
 
 const VIEW_W = 1000;
 const VIEW_H = 600;
-const PADDING = 24;
+const PADDING = 32;
 
 function pickTrackFeature(fc: FeatureCollection): Feature | null {
   const lineFeatures = fc.features.filter(
     (f) => f.geometry?.type === "LineString",
   );
   if (lineFeatures.length === 0) return null;
-  // Pick longest LineString as the racing line.
   return lineFeatures.reduce((best, f) => {
     const a = (f.geometry as LineString).coordinates.length;
     const b = (best.geometry as LineString).coordinates.length;
@@ -63,11 +63,28 @@ function bboxOf(coords: [number, number][]): [number, number, number, number] {
   return [minLon, minLat, maxLon, maxLat];
 }
 
+function cumulativeDist(points: [number, number][]): number[] {
+  const out: number[] = new Array(points.length);
+  out[0] = 0;
+  for (let i = 1; i < points.length; i++) {
+    const dx = points[i][0] - points[i - 1][0];
+    const dy = points[i][1] - points[i - 1][1];
+    out[i] = out[i - 1] + Math.hypot(dx, dy);
+  }
+  return out;
+}
+
+function pathFromPoints(points: [number, number][]): string {
+  if (points.length === 0) return "";
+  const parts: string[] = [];
+  points.forEach(([x, y], i) => {
+    parts.push(`${i === 0 ? "M" : "L"}${x.toFixed(2)},${y.toFixed(2)}`);
+  });
+  return parts.join(" ");
+}
+
 function buildPath(coords: [number, number][]): TrackPath {
   const [minLon, minLat, maxLon, maxLat] = bboxOf(coords);
-
-  // Equirectangular-ish projection: account for latitude squash so the
-  // track does not look stretched east/west.
   const midLat = (minLat + maxLat) / 2;
   const lonScale = Math.cos((midLat * Math.PI) / 180);
 
@@ -83,22 +100,36 @@ function buildPath(coords: [number, number][]): TrackPath {
   const offsetX = (VIEW_W - projW) / 2;
   const offsetY = (VIEW_H - projH) / 2;
 
-  const project = (lon: number, lat: number): [number, number] => {
-    const x = offsetX + (lon - minLon) * lonScale * scale;
-    // flip Y so north is up
-    const y = offsetY + (maxLat - lat) * scale;
-    return [x, y];
-  };
+  const projected: [number, number][] = coords.map(([lon, lat]) => [
+    offsetX + (lon - minLon) * lonScale * scale,
+    offsetY + (maxLat - lat) * scale,
+  ]);
 
-  const parts: string[] = [];
-  coords.forEach(([lon, lat], i) => {
-    const [x, y] = project(lon, lat);
-    parts.push(`${i === 0 ? "M" : "L"}${x.toFixed(2)},${y.toFixed(2)}`);
-  });
-  parts.push("Z");
+  // Cumulative distance along projected line for sector splits.
+  const cum = cumulativeDist(projected);
+  const total = cum[cum.length - 1];
+
+  let split1 = 0,
+    split2 = 0;
+  for (let i = 0; i < cum.length; i++) {
+    if (cum[i] <= total / 3) split1 = i;
+    if (cum[i] <= (2 * total) / 3) split2 = i;
+  }
+
+  // Each sector overlaps the boundary point with the next so the line
+  // visually connects.
+  const seg1 = projected.slice(0, split1 + 1);
+  const seg2 = projected.slice(split1, split2 + 1);
+  const seg3 = projected.slice(split2);
+
+  // Close the loop in sector 3 by appending the first point.
+  if (seg3.length > 0 && projected.length > 0) {
+    seg3.push(projected[0]);
+  }
 
   return {
-    d: parts.join(" "),
+    sectors: [pathFromPoints(seg1), pathFromPoints(seg2), pathFromPoints(seg3)],
+    start: { x: projected[0][0], y: projected[0][1] },
     viewBox: `0 0 ${VIEW_W} ${VIEW_H}`,
     meta: {},
   };
