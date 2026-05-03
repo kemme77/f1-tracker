@@ -1,37 +1,6 @@
 import Link from "next/link";
 import { getSchedule, type Race } from "@/lib/f1";
-
-const COUNTRY_FLAGS: Record<string, string> = {
-  Australia: "🇦🇺",
-  China: "🇨🇳",
-  Japan: "🇯🇵",
-  Bahrain: "🇧🇭",
-  "Saudi Arabia": "🇸🇦",
-  USA: "🇺🇸",
-  "United States": "🇺🇸",
-  Italy: "🇮🇹",
-  Monaco: "🇲🇨",
-  Spain: "🇪🇸",
-  Canada: "🇨🇦",
-  Austria: "🇦🇹",
-  UK: "🇬🇧",
-  "United Kingdom": "🇬🇧",
-  Belgium: "🇧🇪",
-  Hungary: "🇭🇺",
-  Netherlands: "🇳🇱",
-  Azerbaijan: "🇦🇿",
-  Singapore: "🇸🇬",
-  Mexico: "🇲🇽",
-  Brazil: "🇧🇷",
-  Qatar: "🇶🇦",
-  UAE: "🇦🇪",
-  France: "🇫🇷",
-  Germany: "🇩🇪",
-  Portugal: "🇵🇹",
-  Turkey: "🇹🇷",
-  Malaysia: "🇲🇾",
-  Russia: "🇷🇺",
-};
+import { flagFor } from "@/lib/flags";
 
 function shortDate(dateISO: string): string {
   const d = new Date(dateISO);
@@ -66,8 +35,7 @@ export default async function ScheduleTimeline({
         {races.map((r) => {
           const past = isPast(r);
           const selected = r.round === selectedRound;
-          const flag =
-            COUNTRY_FLAGS[r.Circuit.Location.country] ?? "🏁";
+          const flag = flagFor(r.Circuit.Location.country);
           return (
             <li key={r.round} className="shrink-0">
               <Link

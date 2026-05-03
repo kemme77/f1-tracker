@@ -30,7 +30,7 @@ export default function Podium({ race, title = "Race Result" }: Props) {
         <p className="text-xs text-muted">{race.raceName}</p>
       </div>
 
-      <ol className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <ol className="space-y-2">
         {top3.map((r, i) => {
           const color = teamColor(
             r.Constructor.constructorId,
@@ -39,21 +39,23 @@ export default function Podium({ race, title = "Race Result" }: Props) {
           return (
             <li
               key={r.Driver.driverId}
-              className="rounded-xl border border-border p-3"
+              className="flex items-center gap-3 rounded-xl border border-border p-3"
               style={{ borderLeft: `4px solid ${color}` }}
             >
-              <p className="text-xs font-mono text-muted">
+              <span className="w-8 font-mono text-xs text-muted">
                 {POSITIONS[i]}
-              </p>
-              <p className="mt-1 font-semibold">
-                {r.Driver.givenName} {r.Driver.familyName}
-              </p>
-              <p className="text-xs text-muted">
-                {r.Constructor.name}
-              </p>
-              <p className="mt-2 font-mono text-sm tabular-nums">
+              </span>
+              <span className="flex-1 truncate">
+                <span className="block truncate font-semibold">
+                  {r.Driver.givenName} {r.Driver.familyName}
+                </span>
+                <span className="block truncate text-xs text-muted">
+                  {r.Constructor.name}
+                </span>
+              </span>
+              <span className="font-mono text-sm tabular-nums">
                 {r.Time?.time ?? r.status}
-              </p>
+              </span>
             </li>
           );
         })}

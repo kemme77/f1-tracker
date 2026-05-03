@@ -1,9 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import type { Race } from "@/lib/f1";
 
-type Option = Pick<Race, "round" | "raceName" | "date">;
+type Option = {
+  round: string;
+  raceName: string;
+  date: string;
+  country: string;
+  flag: string;
+};
 
 type Props = {
   races: Option[];
@@ -25,7 +30,7 @@ export default function RaceSelector({ races, selectedRound }: Props) {
     >
       {races.map((r) => (
         <option key={r.round} value={r.round}>
-          R{r.round} — {r.raceName}
+          {r.flag} R{r.round} — {r.raceName}
         </option>
       ))}
     </select>

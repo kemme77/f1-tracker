@@ -81,10 +81,11 @@ export default async function WinnerPrediction({ race }: Props) {
 
   const ranked = [...scores.values()]
     .filter((s) => s.points > 0)
-    .sort((a, b) => b.points - a.points);
+    .sort((a, b) => b.points - a.points)
+    .slice(0, 3);
 
-  const favorite = ranked[0] ?? null;
-  const dark = ranked[1] ?? null;
+  const LABELS = ["Favorite", "2nd pick", "3rd pick"];
+  const LABEL_COLORS = ["text-f1", "text-muted", "text-muted"];
 
   return (
     <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
@@ -95,45 +96,38 @@ export default async function WinnerPrediction({ race }: Props) {
         Heuristic: standings + history at {race.Circuit.circuitName}
       </p>
 
-      {favorite ? (
-        <div className="mt-4">
-          <div
-            className="rounded-xl border border-border p-3"
-            style={{
-              borderLeft: `4px solid ${teamColor(favorite.teamId, favorite.team)}`,
-            }}
-          >
-            <p className="text-[10px] font-mono uppercase tracking-widest text-f1">
-              Favorite
-            </p>
-            <p className="font-semibold">{favorite.name}</p>
-            <p className="text-xs text-muted">{favorite.team}</p>
-            <p className="mt-1 font-mono text-xs">
-              score: {favorite.points}
-            </p>
-            <ul className="mt-2 space-y-0.5 text-[11px] text-muted">
-              {favorite.reasons.slice(0, 3).map((r, i) => (
-                <li key={i}>· {r}</li>
-              ))}
-            </ul>
-          </div>
-
-          {dark && (
-            <div
-              className="mt-3 rounded-xl border border-border p-3"
+      {ranked.length > 0 ? (
+        <ol className="mt-4 space-y-2">
+          {ranked.map((p, i) => (
+            <li
+              key={p.driverId}
+              className="rounded-xl border border-border p-3"
               style={{
-                borderLeft: `4px solid ${teamColor(dark.teamId, dark.team)}`,
+                borderLeft: `4px solid ${teamColor(p.teamId, p.team)}`,
               }}
             >
-              <p className="text-[10px] font-mono uppercase tracking-widest text-muted">
-                Dark horse
-              </p>
-              <p className="font-semibold">{dark.name}</p>
-              <p className="text-xs text-muted">{dark.team}</p>
-              <p className="mt-1 font-mono text-xs">score: {dark.points}</p>
-            </div>
-          )}
-        </div>
+              <div className="flex items-baseline justify-between gap-3">
+                <p
+                  className={`text-[10px] font-mono uppercase tracking-widest ${LABEL_COLORS[i]}`}
+                >
+                  {LABELS[i]}
+                </p>
+                <p className="font-mono text-xs text-muted">
+                  score: {p.points}
+                </p>
+              </div>
+              <p className="mt-0.5 font-semibold">{p.name}</p>
+              <p className="text-xs text-muted">{p.team}</p>
+              {i === 0 && p.reasons.length > 0 && (
+                <ul className="mt-2 space-y-0.5 text-[11px] text-muted">
+                  {p.reasons.slice(0, 3).map((r, k) => (
+                    <li key={k}>· {r}</li>
+                  ))}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ol>
       ) : (
         <p className="mt-3 text-sm text-muted">
           Not enough data to predict.

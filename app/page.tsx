@@ -11,6 +11,7 @@ import {
   getSchedule,
   type Race,
 } from "@/lib/f1";
+import { flagFor } from "@/lib/flags";
 
 function Skeleton({ className }: { className: string }) {
   return (
@@ -81,6 +82,8 @@ export default async function Home({
               round: r.round,
               raceName: r.raceName,
               date: r.date,
+              country: r.Circuit.Location.country,
+              flag: flagFor(r.Circuit.Location.country),
             }))}
             selectedRound={selected.round}
           />
@@ -88,7 +91,7 @@ export default async function Home({
       </header>
 
       <main className="mx-auto max-w-6xl space-y-8 px-6 py-8">
-        <Suspense fallback={<Skeleton className="h-[28rem]" />}>
+        <Suspense fallback={<Skeleton className="h-112" />}>
           <HeroTrack race={selected} isCurrent={isCurrent} />
         </Suspense>
 
