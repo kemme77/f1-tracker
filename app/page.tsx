@@ -106,7 +106,7 @@ export default async function Home({
           <Suspense fallback={<Skeleton className="h-56" />}>
             <WinnerPrediction race={selected} />
           </Suspense>
-          
+
           <LiveTicker />
         </section>
 

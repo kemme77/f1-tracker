@@ -17,7 +17,9 @@ export default function CountdownRefresher({ round, initialISO }: Props) {
         });
         if (!res.ok) return;
         const data = await res.json();
-        if (mounted && data?.iso && data.iso !== iso) setIso(data.iso);
+        if (mounted && data?.iso) {
+          setIso((prev) => (data.iso !== prev ? data.iso : prev));
+        }
       } catch {
         // ignore network errors silently
       }
@@ -30,7 +32,7 @@ export default function CountdownRefresher({ round, initialISO }: Props) {
       mounted = false;
       clearInterval(id);
     };
-  }, [round, iso]);
+  }, [round]);
 
   return <Countdown targetISO={iso} />;
 }

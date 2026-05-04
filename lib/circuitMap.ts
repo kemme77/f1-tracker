@@ -1,4 +1,4 @@
-export const CIRCUIT_FILE: Record<string, string> = {
+const CIRCUIT_FILE: Record<string, string> = {
   albert_park: "au-1953",
   americas: "us-2012",
   bahrain: "bh-2002",
