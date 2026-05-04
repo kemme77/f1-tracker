@@ -1,18 +1,22 @@
 # f1-tracker
 
-F1 race tracker with circuit maps. Next.js + Tailwind + TypeScript.
+F1 race tracker dashboard. Next.js 16 + Tailwind 4 + TypeScript.
 
 ## Features
 
-- Next race card with countdown (qualifying + race local time)
-- Circuit SVG renderer (via `bacinger/f1-circuits`)
-- Driver + Constructor standings with team colors
-- Last race podium
+- Hero card: track outline (SVG), countdown, session times
+- Race selector dropdown with country flags (jump to any round)
+- Schedule timeline with current-round highlight
+- Starting grid (post-penalty/DQ aware)
+- Last-race podium with team colors
+- Top-3 winner prediction (standings + circuit history heuristic)
+- Driver + Constructor standings
+- Live ticker placeholder (OpenF1 integration planned)
 
 ## Data sources
 
 - [Jolpica F1 API](https://api.jolpi.ca/) — Ergast-compatible, no key required
-- [bacinger/f1-circuits](https://github.com/bacinger/f1-circuits) — circuit SVGs
+- [bacinger/f1-circuits](https://github.com/bacinger/f1-circuits) — circuit GeoJSON
 
 ## Setup
 
@@ -25,4 +29,4 @@ Open <http://localhost:3000>.
 
 ## License
 
-coming soon ...
+Personal project — all rights reserved.
