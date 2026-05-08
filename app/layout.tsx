@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "F1 Tracker",
+  title: "F1 Tracker - 2026",
   description: "Next race, track, podium and championship standings.",
 };
 

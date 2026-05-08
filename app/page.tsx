@@ -71,6 +71,8 @@ export default async function Home({
           <h1 className="flex items-center gap-2 text-lg font-bold tracking-tight">
             <span className="text-f1">F1</span>
             <span>Tracker</span>
+            <span>-</span>
+            <span>2026</span>
           </h1>
           <RaceSelector
             races={schedule.map((r) => ({
