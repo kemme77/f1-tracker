@@ -22,6 +22,7 @@ type FeatureCollection = {
 };
 
 export type TrackPath = {
+  coordinates: [number, number][];
   sectors: [string, string, string];
   start: { x: number; y: number };
   viewBox: string;
@@ -128,6 +129,7 @@ function buildPath(coords: [number, number][]): TrackPath {
   }
 
   return {
+    coordinates: coords,
     sectors: [pathFromPoints(seg1), pathFromPoints(seg2), pathFromPoints(seg3)],
     start: { x: projected[0][0], y: projected[0][1] },
     viewBox: `0 0 ${VIEW_W} ${VIEW_H}`,

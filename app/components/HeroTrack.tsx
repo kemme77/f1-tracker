@@ -1,7 +1,7 @@
 import type { Race } from "@/lib/f1";
 import { raceStartUTC } from "@/lib/f1";
 import { getTrackPath } from "@/lib/circuitGeo";
-import TrackSVG from "./TrackSVG";
+import TrackMap from "./TrackMap";
 import CountdownRefresher from "./CountdownRefresher";
 import Sessions from "./Sessions";
 
@@ -51,14 +51,12 @@ export default async function HeroTrack({ race, isPast }: Props) {
         </div>
 
         {/* Track column */}
-        <div className="lg:col-span-7">
-          <div className="aspect-video w-full bg-surface-muted">
+        <div className="flex flex-col lg:col-span-7">
+          <div className="aspect-video w-full bg-surface-muted lg:aspect-auto lg:flex-1">
             {path ? (
-              <TrackSVG
-                path={path}
-                ariaLabel={`Outline of ${race.Circuit.circuitName}`}
-                strokeWidth={7}
-                showSectorLabels
+              <TrackMap
+                coordinates={path.coordinates}
+                label={`Satellite view of ${race.Circuit.circuitName}`}
               />
             ) : (
               <div className="flex h-full items-center justify-center text-sm text-muted">
@@ -69,37 +67,6 @@ export default async function HeroTrack({ race, isPast }: Props) {
         </div>
       </div>
 
-      {/* Bottom info strip */}
-      {path?.meta && (
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-1 border-t border-border px-5 py-3 text-xs text-muted">
-          {path.meta.length && (
-            <span>
-              Length:{" "}
-              <span className="font-mono text-foreground">
-                {(path.meta.length / 1000).toFixed(3)} km
-              </span>
-            </span>
-          )}
-          {path.meta.firstGp && (
-            <span>
-              First GP:{" "}
-              <span className="font-mono text-foreground">
-                {path.meta.firstGp}
-              </span>
-            </span>
-          )}
-          <span className="ml-auto">
-            <a
-              className="hover:underline"
-              target="_blank"
-              rel="noreferrer"
-              href={`https://www.openstreetmap.org/?mlat=${race.Circuit.Location.lat}&mlon=${race.Circuit.Location.long}#map=15/${race.Circuit.Location.lat}/${race.Circuit.Location.long}`}
-            >
-              View on OpenStreetMap →
-            </a>
-          </span>
-        </div>
-      )}
     </section>
   );
 }
