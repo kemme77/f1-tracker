@@ -1,6 +1,7 @@
 import type { Race } from "@/lib/f1";
 import { raceStartUTC } from "@/lib/f1";
 import { getTrackPath } from "@/lib/circuitGeo";
+import { getCircuitOverlay } from "@/lib/multiviewer";
 import TrackMap from "./TrackMap";
 import CountdownRefresher from "./CountdownRefresher";
 import Sessions from "./Sessions";
@@ -9,6 +10,9 @@ type Props = { race: Race; isPast: boolean };
 
 export default async function HeroTrack({ race, isPast }: Props) {
   const path = await getTrackPath(race.Circuit.circuitId);
+  const overlay = path
+    ? await getCircuitOverlay(race.Circuit.circuitId, path.coordinates)
+    : { turns: [], sfIdx: 0 };
   const startISO = raceStartUTC(race)?.toISOString() ?? null;
 
   return (
@@ -56,6 +60,8 @@ export default async function HeroTrack({ race, isPast }: Props) {
             {path ? (
               <TrackMap
                 coordinates={path.coordinates}
+                sfIdx={overlay.sfIdx}
+                turns={overlay.turns}
                 label={`Satellite view of ${race.Circuit.circuitName}`}
               />
             ) : (
