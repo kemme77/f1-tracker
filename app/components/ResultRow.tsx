@@ -31,7 +31,9 @@ export default function ResultRow({
     >
       <span className="w-9 shrink-0 text-center font-mono text-xs">
         {statusLabel ? (
-          <span className="font-semibold text-f1">{statusLabel}</span>
+          <span className="rounded border border-f1 bg-f1/10 px-1 py-0.5 font-semibold text-muted">
+            {statusLabel}
+          </span>
         ) : (
           <span className="tabular-nums text-muted">{pos}</span>
         )}

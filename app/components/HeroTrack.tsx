@@ -1,6 +1,6 @@
 import type { Race } from "@/lib/f1";
 import { raceStartUTC } from "@/lib/f1";
-import { getTrackPath } from "@/lib/circuitGeo";
+import { getTrackPath, bboxOf } from "@/lib/circuitGeo";
 import { getCircuitOverlay } from "@/lib/multiviewer";
 import { getSatelliteInfo } from "@/lib/satellite";
 import TrackMap from "./TrackMap";
@@ -8,19 +8,6 @@ import CountdownRefresher from "./CountdownRefresher";
 import Sessions from "./Sessions";
 
 type Props = { race: Race; isPast: boolean };
-
-function bboxOf(
-  coords: [number, number][],
-): [number, number, number, number] {
-  let minLon = Infinity, minLat = Infinity, maxLon = -Infinity, maxLat = -Infinity;
-  for (const [lon, lat] of coords) {
-    if (lon < minLon) minLon = lon;
-    if (lon > maxLon) maxLon = lon;
-    if (lat < minLat) minLat = lat;
-    if (lat > maxLat) maxLat = lat;
-  }
-  return [minLon, minLat, maxLon, maxLat];
-}
 
 export default async function HeroTrack({ race, isPast }: Props) {
   const path = await getTrackPath(race.Circuit.circuitId);

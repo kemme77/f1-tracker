@@ -313,15 +313,15 @@ export default function TrackMap({
       >
         {isFullscreen ? <CompressIcon /> : <ExpandIcon />}
       </button>
-      <div className="pointer-events-none absolute bottom-1 left-1 flex flex-col gap-0.5">
+      <div className="pointer-events-none absolute inset-x-1.5 bottom-1.5 flex items-end justify-between gap-2">
         {s1Idx != null && s2Idx != null && (
-          <span className="rounded bg-black/40 px-1.5 py-0.5 text-[9px] leading-tight text-white/70 backdrop-blur-sm">
+          <span className="rounded bg-black/75 px-1.5 py-0.5 text-[10px] leading-tight text-left text-white/80 backdrop-blur-sm">
             Corners and sector splits estimated from live timing — positions
             approximate
           </span>
         )}
         {imageryCaption && (
-          <span className="rounded bg-black/40 px-1.5 py-0.5 text-[9px] leading-tight text-white/80 backdrop-blur-sm">
+          <span className="rounded bg-black/75 px-1.5 py-0.5 text-right text-[10px] leading-tight text-white/80 backdrop-blur-sm">
             {imageryCaption}
           </span>
         )}

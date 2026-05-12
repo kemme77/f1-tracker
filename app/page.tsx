@@ -7,11 +7,7 @@ import RaceSelector from "./components/RaceSelector";
 import LiveTicker from "./components/LiveTicker";
 import StartingGrid from "./components/StartingGrid";
 import WinnerPrediction from "./components/WinnerPrediction";
-import {
-  getRaceWithResults,
-  getSchedule,
-  type Race,
-} from "@/lib/f1";
+import { getSchedule, type Race } from "@/lib/f1";
 import { flagFor } from "@/lib/flags";
 
 function Skeleton({ className }: { className: string }) {
@@ -52,8 +48,6 @@ export default async function Home({
     schedule.find((r) => r.round === roundParam) ?? currentRace;
 
   const isPast = isPastRace(selected);
-  // Results of whichever race is currently selected.
-  const resultsRacePromise = getRaceWithResults(selected.round);
 
   return (
     <div className="min-h-screen">
@@ -89,10 +83,7 @@ export default async function Home({
 
         <section className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
           <Suspense fallback={<Skeleton className="h-56" />}>
-            <RaceResultsWrap
-              promise={resultsRacePromise}
-              raceName={selected.raceName}
-            />
+            <RaceResults round={selected.round} raceName={selected.raceName} />
           </Suspense>
 
           <Suspense fallback={<Skeleton className="h-56" />}>
@@ -131,15 +122,4 @@ export default async function Home({
       </footer>
     </div>
   );
-}
-
-async function RaceResultsWrap({
-  promise,
-  raceName,
-}: {
-  promise: Promise<Race | null>;
-  raceName: string;
-}) {
-  const race = await promise;
-  return <RaceResults race={race} raceName={raceName} />;
 }

@@ -31,6 +31,18 @@ three timing-sector splits. Key facts:
   position → corner-anchored arc-length warp onto the outline). `lib/sectors.ts`
   (hand-picked corner numbers) is only the fallback when OpenF1 has no data.
 
+## Components & conventions
+
+- **Data panels are async Server Components that fetch their own data**, wrapped
+  in `<Suspense>` in `app/page.tsx` (see `StartingGrid`, `RaceResults`,
+  `HeroTrack`). Don't introduce wrapper components that take a pre-fetched
+  promise — keep all panels following the same pattern.
+- **Two panels showing the same shape of data share their markup** — e.g.
+  Starting Grid and Race Results both render rows via `ResultRow` inside a
+  `ResultsPanel` shell. Before duplicating a layout/row, extend the shared one.
+- **Reuse helpers from `lib/` instead of re-deriving** (e.g. `bboxOf` lives in
+  `lib/circuitGeo.ts`). Check `lib/` before writing a new utility.
+
 ## Before committing
 
 `npx tsc --noEmit` · `npx eslint .` · `npm run build`. Branch off `main`, merge

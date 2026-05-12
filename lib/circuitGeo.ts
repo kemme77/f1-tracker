@@ -50,7 +50,9 @@ function pickTrackFeature(fc: FeatureCollection): Feature | null {
   });
 }
 
-function bboxOf(coords: [number, number][]): [number, number, number, number] {
+export function bboxOf(
+  coords: [number, number][],
+): [number, number, number, number] {
   let minLon = Infinity,
     maxLon = -Infinity,
     minLat = Infinity,

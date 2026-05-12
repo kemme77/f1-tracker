@@ -1,8 +1,8 @@
-import type { Race, RaceResult } from "@/lib/f1";
+import { getRaceWithResults, type RaceResult } from "@/lib/f1";
 import ResultsPanel from "./ResultsPanel";
 import ResultRow from "./ResultRow";
 
-type Props = { race: Race | null; raceName: string; title?: string };
+type Props = { round: string; raceName: string };
 
 type Kind = "classified" | "DNF" | "DNS" | "DQ" | "NC";
 
@@ -23,11 +23,12 @@ function primaryText(r: RaceResult, kind: Kind): string {
   return r.status; // retirement reason / "Did not start" / "Disqualified"
 }
 
-export default function RaceResults({ race, raceName, title = "Race Results" }: Props) {
+export default async function RaceResults({ round, raceName }: Props) {
+  const race = await getRaceWithResults(round);
   const results = race?.Results ?? [];
   return (
     <ResultsPanel
-      title={title}
+      title="Race Results"
       subtitle={raceName}
       empty={results.length === 0 ? "No results yet — race hasn't happened." : undefined}
     >
