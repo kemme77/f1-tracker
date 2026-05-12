@@ -29,7 +29,7 @@ export default async function HeroTrack({ race, isPast }: Props) {
         getCircuitOverlay(race.Circuit.circuitId, path.coordinates),
         getSatelliteInfo(bboxOf(path.coordinates)),
       ])
-    : [{ turns: [], sfIdx: 0 }, null];
+    : [{ turns: [] }, null];
   const startISO = raceStartUTC(race)?.toISOString() ?? null;
 
   return (

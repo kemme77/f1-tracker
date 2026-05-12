@@ -7,7 +7,7 @@ import type { TurnMarker } from "@/lib/multiviewer";
 
 type Props = {
   coordinates: [number, number][];
-  sfIdx: number;
+  sfIdx?: number;
   turns: TurnMarker[];
   label: string;
   s1Idx?: number;
@@ -19,32 +19,6 @@ type Props = {
 const S1 = "#e10600";
 const S2 = "#00d2be";
 const S3 = "#facc15";
-
-function sectorSplitIndices(
-  coords: [number, number][],
-  sfIdx: number,
-): [number, number] {
-  const n = coords.length;
-  const cum: number[] = [0];
-  for (let i = 1; i < n; i++) {
-    const ci = (sfIdx + i) % n;
-    const cp = (sfIdx + i - 1) % n;
-    const cosLat = Math.cos(
-      (((coords[ci][1] + coords[cp][1]) / 2) * Math.PI) / 180,
-    );
-    const dx = (coords[ci][0] - coords[cp][0]) * cosLat;
-    const dy = coords[ci][1] - coords[cp][1];
-    cum.push(cum[i - 1] + Math.hypot(dx, dy));
-  }
-  const total = cum[n - 1];
-  let e1 = 0,
-    e2 = 0;
-  for (let i = 0; i < n; i++) {
-    if (cum[i] <= total / 3) e1 = i;
-    if (cum[i] <= (2 * total) / 3) e2 = i;
-  }
-  return [(sfIdx + e1) % n, (sfIdx + e2) % n];
-}
 
 // Perpendicular tick line across the track at coords[idx].
 function perpTick(
@@ -193,9 +167,6 @@ export default function TrackMap({
     map.on("load", () => {
       map.fitBounds(bounds, { padding: 48, animate: false });
 
-      const [autoS1, autoS2] = sectorSplitIndices(coordinates, sfIdx);
-      const s1end = s1Idx ?? autoS1;
-      const s2end = s2Idx ?? autoS2;
       const n = coordinates.length;
 
       function sliceWrapped(from: number, to: number): [number, number][] {
@@ -209,13 +180,7 @@ export default function TrackMap({
         return out;
       }
 
-      const segments = [
-        { id: "s1", path: sliceWrapped(sfIdx, s1end), color: S1 },
-        { id: "s2", path: sliceWrapped(s1end, s2end), color: S2 },
-        { id: "s3", path: sliceWrapped(s2end, sfIdx), color: S3 },
-      ];
-
-      for (const { id, path, color } of segments) {
+      function addLine(id: string, path: [number, number][], color: string) {
         map.addSource(id, {
           type: "geojson",
           data: {
@@ -245,17 +210,9 @@ export default function TrackMap({
         });
       }
 
-      // Tick marks at S/F, S2-start, S3-start
       const HALF = 0.0003;
-      const ticks = [
-        { idx: sfIdx, color: "#ffffff", text: "S/F" },
-        { idx: s1end, color: S2, text: "S2" },
-        { idx: s2end, color: S3, text: "S3" },
-      ];
-
-      for (const { idx, color, text } of ticks) {
+      function addTick(idx: number, color: string, text: string) {
         const [p1, p2] = perpTick(coordinates, idx, HALF);
-
         map.addSource(`tick-${text}`, {
           type: "geojson",
           data: {
@@ -278,14 +235,36 @@ export default function TrackMap({
           paint: { "line-color": color, "line-width": 3 },
           layout: { "line-cap": "butt" },
         });
-
-        // Label just outside the track at one end of the tick
         const center = coordinates[idx];
         const extLon = p1[0] + (p1[0] - center[0]) * 0.9;
         const extLat = p1[1] + (p1[1] - center[1]) * 0.9;
         new maplibregl.Marker({ element: labelEl(text, color), anchor: "center" })
           .setLngLat([extLon, extLat])
           .addTo(map);
+      }
+
+      const hasSectors =
+        sfIdx != null && s1Idx != null && s2Idx != null;
+
+      if (hasSectors) {
+        addLine("s1", sliceWrapped(sfIdx, s1Idx), S1);
+        addLine("s2", sliceWrapped(s1Idx, s2Idx), S2);
+        addLine("s3", sliceWrapped(s2Idx, sfIdx), S3);
+        addTick(sfIdx, "#ffffff", "S/F");
+        addTick(s1Idx, S2, "S2");
+        addTick(s2Idx, S3, "S3");
+      } else {
+        // No sector data → draw the outline as one neutral line, no splits.
+        const loop = [...coordinates];
+        if (
+          loop.length > 1 &&
+          (loop[0][0] !== loop[loop.length - 1][0] ||
+            loop[0][1] !== loop[loop.length - 1][1])
+        ) {
+          loop.push(loop[0]);
+        }
+        addLine("track", loop, "#ffffff");
+        if (sfIdx != null) addTick(sfIdx, "#ffffff", "S/F");
       }
 
       // Turn number markers from MultiViewer data

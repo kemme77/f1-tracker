@@ -29,11 +29,13 @@ export type CircuitOverlay = {
   // a reversed copy of the input). Falls back to the caller's own coordinates
   // when the overlay couldn't be built. All indices below point into this.
   coordinates?: [number, number][];
-  // Index of the vertex at the start/finish line.
-  sfIdx: number;
+  // Index of the vertex at the start/finish line. Undefined when no racing
+  // reference is available (e.g. a brand-new circuit MultiViewer has no data
+  // for) — the consumer should then draw just the bare outline.
+  sfIdx?: number;
   // Indices of the vertices at the end of sector 1 and sector 2. Undefined when
-  // no split could be resolved — the consumer should fall back to an even
-  // arc-length split.
+  // no split could be resolved — the consumer should then draw no sector
+  // splits at all rather than guessing.
   s1Idx?: number;
   s2Idx?: number;
 };
@@ -279,7 +281,7 @@ export async function getCircuitOverlay(
   circuitId: string,
   trackCoords: [number, number][],
 ): Promise<CircuitOverlay> {
-  const fallback: CircuitOverlay = { turns: [], sfIdx: 0 };
+  const fallback: CircuitOverlay = { turns: [] };
 
   const key = MV_KEY[circuitId];
   if (key === undefined || trackCoords.length < 2) return fallback;
