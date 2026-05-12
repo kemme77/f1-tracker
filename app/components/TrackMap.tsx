@@ -290,6 +290,20 @@ export default function TrackMap({
     return () => document.removeEventListener("fullscreenchange", onChange);
   }, []);
 
+  // Observe container resizes (viewport changes, orientation, layout shifts)
+  useEffect(() => {
+    const container = containerRef.current;
+    const map = mapRef.current;
+    if (!container || !map) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      map.resize();
+    });
+    resizeObserver.observe(container);
+
+    return () => resizeObserver.disconnect();
+  }, []);
+
   const toggleFullscreen = () => {
     if (document.fullscreenElement) {
       document.exitFullscreen();
