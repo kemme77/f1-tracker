@@ -263,7 +263,7 @@ export default function TrackMap({
         ) {
           loop.push(loop[0]);
         }
-        addLine("track", loop, "#ffffff");
+        addLine("track", loop, "#e10600");
         if (sfIdx != null) addTick(sfIdx, "#ffffff", "S/F");
       }
 
