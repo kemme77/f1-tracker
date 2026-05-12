@@ -10,6 +10,8 @@ type Props = {
   sfIdx: number;
   turns: TurnMarker[];
   label: string;
+  s1Idx?: number;
+  s2Idx?: number;
 };
 
 // Official F1 sector timing colours
@@ -153,7 +155,14 @@ function CompressIcon() {
   );
 }
 
-export default function TrackMap({ coordinates, sfIdx, turns, label }: Props) {
+export default function TrackMap({
+  coordinates,
+  sfIdx,
+  turns,
+  label,
+  s1Idx,
+  s2Idx,
+}: Props) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -182,7 +191,9 @@ export default function TrackMap({ coordinates, sfIdx, turns, label }: Props) {
     map.on("load", () => {
       map.fitBounds(bounds, { padding: 48, animate: false });
 
-      const [s1end, s2end] = sectorSplitIndices(coordinates, sfIdx);
+      const [autoS1, autoS2] = sectorSplitIndices(coordinates, sfIdx);
+      const s1end = s1Idx ?? autoS1;
+      const s2end = s2Idx ?? autoS2;
       const n = coordinates.length;
 
       function sliceWrapped(from: number, to: number): [number, number][] {
@@ -287,7 +298,7 @@ export default function TrackMap({ coordinates, sfIdx, turns, label }: Props) {
       map.remove();
       mapRef.current = null;
     };
-  }, [coordinates, sfIdx, turns]);
+  }, [coordinates, sfIdx, turns, s1Idx, s2Idx]);
 
   useEffect(() => {
     const onChange = () => {

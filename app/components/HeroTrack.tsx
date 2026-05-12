@@ -59,9 +59,11 @@ export default async function HeroTrack({ race, isPast }: Props) {
           <div className="aspect-video w-full bg-surface-muted lg:aspect-auto lg:flex-1">
             {path ? (
               <TrackMap
-                coordinates={path.coordinates}
+                coordinates={overlay.coordinates ?? path.coordinates}
                 sfIdx={overlay.sfIdx}
                 turns={overlay.turns}
+                s1Idx={overlay.s1Idx}
+                s2Idx={overlay.s2Idx}
                 label={`Satellite view of ${race.Circuit.circuitName}`}
               />
             ) : (
