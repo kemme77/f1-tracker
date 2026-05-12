@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import HeroTrack from "./components/HeroTrack";
-import Podium from "./components/Podium";
+import RaceResults from "./components/RaceResults";
 import Standings from "./components/Standings";
 import ScheduleTimeline from "./components/ScheduleTimeline";
 import RaceSelector from "./components/RaceSelector";
@@ -52,17 +52,8 @@ export default async function Home({
     schedule.find((r) => r.round === roundParam) ?? currentRace;
 
   const isPast = isPastRace(selected);
-  // Last completed race (for podium when viewing current/future race)
-  const lastCompleted = [...schedule]
-    .reverse()
-    .find((r) => isPastRace(r));
-
-  const podiumRound = lastCompleted?.round ?? null;
-  const podiumTitle = podiumRound ? "Last Race" : "Result";
-
-  const podiumRacePromise = podiumRound
-    ? getRaceWithResults(podiumRound)
-    : Promise.resolve(null);
+  // Results of whichever race is currently selected.
+  const resultsRacePromise = getRaceWithResults(selected.round);
 
   return (
     <div className="min-h-screen">
@@ -98,7 +89,7 @@ export default async function Home({
 
         <section className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
           <Suspense fallback={<Skeleton className="h-56" />}>
-            <PodiumWrap promise={podiumRacePromise} title={podiumTitle} />
+            <RaceResultsWrap promise={resultsRacePromise} />
           </Suspense>
 
           <Suspense fallback={<Skeleton className="h-56" />}>
@@ -132,13 +123,11 @@ export default async function Home({
   );
 }
 
-async function PodiumWrap({
+async function RaceResultsWrap({
   promise,
-  title,
 }: {
   promise: Promise<Race | null>;
-  title: string;
 }) {
   const race = await promise;
-  return <Podium race={race} title={title} />;
+  return <RaceResults race={race} />;
 }

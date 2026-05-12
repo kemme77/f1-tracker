@@ -59,6 +59,10 @@ export type Constructor = {
 
 export type RaceResult = {
   position: string;
+  // Ergast short code: a number for classified finishers, or "R" (retired),
+  // "D" (disqualified), "E" (excluded), "W" (withdrew), "N" (not classified),
+  // "F" (failed to qualify).
+  positionText: string;
   points: string;
   Driver: Driver;
   Constructor: Constructor;
