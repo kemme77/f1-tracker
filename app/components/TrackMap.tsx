@@ -12,6 +12,7 @@ type Props = {
   label: string;
   s1Idx?: number;
   s2Idx?: number;
+  imageryCaption?: string;
 };
 
 // Official F1 sector timing colours
@@ -162,6 +163,7 @@ export default function TrackMap({
   label,
   s1Idx,
   s2Idx,
+  imageryCaption,
 }: Props) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -332,6 +334,11 @@ export default function TrackMap({
       >
         {isFullscreen ? <CompressIcon /> : <ExpandIcon />}
       </button>
+      {imageryCaption && (
+        <div className="pointer-events-none absolute bottom-1 left-1 rounded bg-black/40 px-1.5 py-0.5 text-[9px] leading-tight text-white/80 backdrop-blur-sm">
+          {imageryCaption}
+        </div>
+      )}
     </div>
   );
 }

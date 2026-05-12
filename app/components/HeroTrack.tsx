@@ -2,17 +2,34 @@ import type { Race } from "@/lib/f1";
 import { raceStartUTC } from "@/lib/f1";
 import { getTrackPath } from "@/lib/circuitGeo";
 import { getCircuitOverlay } from "@/lib/multiviewer";
+import { getSatelliteInfo } from "@/lib/satellite";
 import TrackMap from "./TrackMap";
 import CountdownRefresher from "./CountdownRefresher";
 import Sessions from "./Sessions";
 
 type Props = { race: Race; isPast: boolean };
 
+function bboxOf(
+  coords: [number, number][],
+): [number, number, number, number] {
+  let minLon = Infinity, minLat = Infinity, maxLon = -Infinity, maxLat = -Infinity;
+  for (const [lon, lat] of coords) {
+    if (lon < minLon) minLon = lon;
+    if (lon > maxLon) maxLon = lon;
+    if (lat < minLat) minLat = lat;
+    if (lat > maxLat) maxLat = lat;
+  }
+  return [minLon, minLat, maxLon, maxLat];
+}
+
 export default async function HeroTrack({ race, isPast }: Props) {
   const path = await getTrackPath(race.Circuit.circuitId);
-  const overlay = path
-    ? await getCircuitOverlay(race.Circuit.circuitId, path.coordinates)
-    : { turns: [], sfIdx: 0 };
+  const [overlay, satellite] = path
+    ? await Promise.all([
+        getCircuitOverlay(race.Circuit.circuitId, path.coordinates),
+        getSatelliteInfo(bboxOf(path.coordinates)),
+      ])
+    : [{ turns: [], sfIdx: 0 }, null];
   const startISO = raceStartUTC(race)?.toISOString() ?? null;
 
   return (
@@ -64,6 +81,14 @@ export default async function HeroTrack({ race, isPast }: Props) {
                 turns={overlay.turns}
                 s1Idx={overlay.s1Idx}
                 s2Idx={overlay.s2Idx}
+                imageryCaption={[
+                  "© Esri",
+                  satellite?.source,
+                  satellite?.date ?? (satellite?.year ? String(satellite.year) : undefined),
+                  satellite?.resolutionM ? `${satellite.resolutionM} m/px` : undefined,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
                 label={`Satellite view of ${race.Circuit.circuitName}`}
               />
             ) : (
