@@ -45,7 +45,7 @@ export default function ResultRow({
       </span>
       {points !== undefined && (
         <span className="w-8 shrink-0 text-right font-mono text-xs tabular-nums text-muted">
-          {points > 0 ? points : ""}
+          {points >= 0 ? `+${points}` : ""}
         </span>
       )}
     </li>

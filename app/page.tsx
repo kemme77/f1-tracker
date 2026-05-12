@@ -115,9 +115,16 @@ export default async function Home({
         </Suspense>
       </main>
 
-      <footer className="border-t border-border py-6 text-center text-xs text-muted">
-        Built with Next.js · data via Jolpica F1 API · track outlines via
-        bacinger/f1-circuits
+      <footer className="space-y-1 border-t border-border px-6 py-6 text-center text-xs text-muted">
+        <p>
+          Built with Next.js · data via Jolpica F1 API · track outlines via
+          bacinger/f1-circuits
+        </p>
+        <p>
+          Unofficial fan project — not associated with Formula 1. F1, FORMULA 1,
+          GRAND PRIX and related marks are trade marks of Formula One Licensing
+          B.V.
+        </p>
       </footer>
     </div>
   );
