@@ -182,6 +182,29 @@ export async function getRaceWithResults(round: string): Promise<Race | null> {
   return data.MRData.RaceTable.Races[0] ?? null;
 }
 
+// Driver IDs disqualified from qualifying — inferred from the quali data alone:
+// a time in a later stage with none from an earlier stage isn't legitimate
+// progression, and a duplicated grid slot whose other holder set no times is
+// the deleted lap. This holds whether or not the race has since run.
+function qualifyingDQs(quals: QualifyingEntry[]): Set<string> {
+  const dq = new Set<string>();
+  for (const q of quals) {
+    if (isQualifyingDQ(q)) dq.add(q.Driver.driverId);
+  }
+  const byPos = new Map<string, QualifyingEntry[]>();
+  for (const q of quals) {
+    const list = byPos.get(q.position) ?? [];
+    list.push(q);
+    byPos.set(q.position, list);
+  }
+  for (const list of byPos.values()) {
+    if (list.length <= 1) continue;
+    const withNoTimes = list.filter((e) => !hasAnyLapTime(e));
+    if (withNoTimes.length === 1) dq.add(withNoTimes[0].Driver.driverId);
+  }
+  return dq;
+}
+
 export async function getRaceGrid(round: string): Promise<QualifyingEntry[]> {
   try {
     const data = await jget<
@@ -190,7 +213,10 @@ export async function getRaceGrid(round: string): Promise<QualifyingEntry[]> {
     const race = data.MRData.RaceTable.Races[0];
     const quals: QualifyingEntry[] = (race?.QualifyingResults ?? []).map((q) => ({ ...q }));
 
-    // If race has run, RaceResult.grid is authoritative starting grid (post penalties/DQ)
+    const dqDrivers = qualifyingDQs(quals);
+
+    // If the race has run, RaceResult.grid is the authoritative starting grid
+    // (post penalties/DQ). A qualifying DQ still takes precedence as the label.
     let gridByDriver: Map<string, string> | null = null;
     try {
       const resultsRace = await getRaceWithResults(round);
@@ -204,38 +230,21 @@ export async function getRaceGrid(round: string): Promise<QualifyingEntry[]> {
       // ignore: race not run yet, use qualifying-only logic below
     }
 
-    if (gridByDriver) {
-      for (const q of quals) {
+    for (const q of quals) {
+      if (dqDrivers.has(q.Driver.driverId)) {
+        q.status = "DQ";
+        continue;
+      }
+      if (gridByDriver) {
         const g = gridByDriver.get(q.Driver.driverId);
         if (g === undefined) {
           q.status = "DNS";
-          continue;
-        }
-        if (g === "0") {
+        } else if (g === "0") {
           q.status = "PIT";
         } else {
           q.position = g;
         }
       }
-      return renumberGrid(quals);
-    }
-
-    // Quali-only DQ detection: later-stage times without the prior stage are not valid progression.
-    for (const q of quals) {
-      if (isQualifyingDQ(q)) q.status = "DQ";
-    }
-
-    // Fallback: duplicated positions where only one entry is missing all times.
-    const byPos = new Map<string, QualifyingEntry[]>();
-    for (const q of quals) {
-      const list = byPos.get(q.position) ?? [];
-      list.push(q);
-      byPos.set(q.position, list);
-    }
-    for (const list of byPos.values()) {
-      if (list.length <= 1) continue;
-      const withNoTimes = list.filter((e) => !hasAnyLapTime(e));
-      if (withNoTimes.length === 1) withNoTimes[0].status = "DQ";
     }
 
     return renumberGrid(quals);
