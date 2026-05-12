@@ -1,4 +1,5 @@
 import { getRaceGrid, type Race, type QualifyingEntry } from "@/lib/f1";
+import ResultsPanel from "./ResultsPanel";
 import ResultRow from "./ResultRow";
 
 type Props = { race: Race };
@@ -15,33 +16,23 @@ function formatLapTime(result: QualifyingEntry): string {
 
 export default async function StartingGrid({ race }: Props) {
   const grid = await getRaceGrid(race.round);
-
   return (
-    <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
-      <h3 className="text-sm font-medium uppercase tracking-wider text-muted">
-        Starting Grid
-      </h3>
-      <p className="text-xs text-muted">Qualifying grid for {race.raceName}</p>
-
-      {grid.length > 0 ? (
-        <ol className="mt-4 max-h-96 space-y-2 overflow-auto pr-1">
-          {grid.map((entry) => (
-            <ResultRow
-              key={`${entry.Driver.driverId}-${entry.position}`}
-              pos={entry.position}
-              statusLabel={entry.status}
-              name={`${entry.Driver.givenName} ${entry.Driver.familyName}`}
-              teamId={entry.Constructor.constructorId}
-              teamName={entry.Constructor.name}
-              primary={formatLapTime(entry)}
-            />
-          ))}
-        </ol>
-      ) : (
-        <p className="mt-3 text-sm text-muted">
-          Grid not available yet for this race.
-        </p>
-      )}
-    </section>
+    <ResultsPanel
+      title="Starting Grid"
+      subtitle={race.raceName}
+      empty={grid.length === 0 ? "Grid not available yet for this race." : undefined}
+    >
+      {grid.map((entry) => (
+        <ResultRow
+          key={`${entry.Driver.driverId}-${entry.position}`}
+          pos={entry.position}
+          statusLabel={entry.status}
+          name={`${entry.Driver.givenName} ${entry.Driver.familyName}`}
+          teamId={entry.Constructor.constructorId}
+          teamName={entry.Constructor.name}
+          primary={formatLapTime(entry)}
+        />
+      ))}
+    </ResultsPanel>
   );
 }

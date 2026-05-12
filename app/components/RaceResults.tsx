@@ -1,7 +1,8 @@
 import type { Race, RaceResult } from "@/lib/f1";
+import ResultsPanel from "./ResultsPanel";
 import ResultRow from "./ResultRow";
 
-type Props = { race: Race | null; title?: string };
+type Props = { race: Race | null; raceName: string; title?: string };
 
 type Kind = "classified" | "DNF" | "DNS" | "DQ" | "NC";
 
@@ -22,44 +23,29 @@ function primaryText(r: RaceResult, kind: Kind): string {
   return r.status; // retirement reason / "Did not start" / "Disqualified"
 }
 
-export default function RaceResults({ race, title = "Race Results" }: Props) {
-  if (!race || !race.Results || race.Results.length === 0) {
-    return (
-      <section className="rounded-2xl border border-dashed border-border bg-surface p-5 shadow-sm">
-        <h3 className="text-sm font-medium uppercase tracking-wider text-muted">
-          {title}
-        </h3>
-        <p className="mt-3 text-sm text-muted">
-          No results yet — race hasn&apos;t happened.
-        </p>
-      </section>
-    );
-  }
-
+export default function RaceResults({ race, raceName, title = "Race Results" }: Props) {
+  const results = race?.Results ?? [];
   return (
-    <section className="rounded-2xl border border-border bg-surface p-5 shadow-sm">
-      <h3 className="text-sm font-medium uppercase tracking-wider text-muted">
-        {title}
-      </h3>
-      <p className="text-xs text-muted">{race.raceName}</p>
-
-      <ol className="mt-4 max-h-96 space-y-2 overflow-auto pr-1">
-        {race.Results.map((r) => {
-          const kind = classify(r);
-          return (
-            <ResultRow
-              key={r.Driver.driverId}
-              pos={r.position}
-              statusLabel={kind === "classified" ? undefined : kind}
-              name={`${r.Driver.givenName} ${r.Driver.familyName}`}
-              teamId={r.Constructor.constructorId}
-              teamName={r.Constructor.name}
-              primary={primaryText(r, kind)}
-              points={Number(r.points)}
-            />
-          );
-        })}
-      </ol>
-    </section>
+    <ResultsPanel
+      title={title}
+      subtitle={raceName}
+      empty={results.length === 0 ? "No results yet — race hasn't happened." : undefined}
+    >
+      {results.map((r) => {
+        const kind = classify(r);
+        return (
+          <ResultRow
+            key={r.Driver.driverId}
+            pos={r.position}
+            statusLabel={kind === "classified" ? undefined : kind}
+            name={`${r.Driver.givenName} ${r.Driver.familyName}`}
+            teamId={r.Constructor.constructorId}
+            teamName={r.Constructor.name}
+            primary={primaryText(r, kind)}
+            points={Number(r.points)}
+          />
+        );
+      })}
+    </ResultsPanel>
   );
 }

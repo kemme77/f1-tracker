@@ -89,7 +89,10 @@ export default async function Home({
 
         <section className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
           <Suspense fallback={<Skeleton className="h-56" />}>
-            <RaceResultsWrap promise={resultsRacePromise} />
+            <RaceResultsWrap
+              promise={resultsRacePromise}
+              raceName={selected.raceName}
+            />
           </Suspense>
 
           <Suspense fallback={<Skeleton className="h-56" />}>
@@ -132,9 +135,11 @@ export default async function Home({
 
 async function RaceResultsWrap({
   promise,
+  raceName,
 }: {
   promise: Promise<Race | null>;
+  raceName: string;
 }) {
   const race = await promise;
-  return <RaceResults race={race} />;
+  return <RaceResults race={race} raceName={raceName} />;
 }
