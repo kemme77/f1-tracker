@@ -9,6 +9,7 @@ const CIRCUIT_FILE: Record<string, string> = {
   interlagos: "br-1940",
   jeddah: "sa-2021",
   losail: "qa-2004",
+  madring: "es-2026",
   marina_bay: "sg-2008",
   miami: "us-2022",
   monaco: "mc-1929",
