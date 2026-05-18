@@ -14,7 +14,7 @@ Dieser Skill ist kanonische Referenz für Geo-/Timing-Logik im f1-tracker. Bei C
 | F1 Positioning Grid | metrisch (x/y) | MultiViewer `x/y`, OpenF1 `location` | Corner-Positionen, S/F-Tick, Car-Traces |
 | Geo lon/lat | Grad | bacinger GeoJSON | Circuit-Outline auf Karte |
 
-**Wichtig:** MultiViewer `x/y`, OpenF1 `location` und "F1 positioning grid" sind **derselbe** metrische Grid. Eine **Best-Fit Similarity Transform** (Skalierung + Rotation + Translation, **kein** Shear) brückt zwischen Grid und lon/lat.
+**Wichtig:** MultiViewer `x/y`, OpenF1 `location` und "F1 positioning grid" sind **derselbe** metrische Grid. Eine **Best-Fit Similarity Transform** (uniform Scale + Rotation + Translation, **optionale Reflexion**; **kein** Shear) brückt zwischen Grid und lon/lat. Reflexion ist nötig, weil manche bacinger Outlines gespiegelt zur MV-Geometrie liegen — `fitSimilarity` probiert beide Varianten und nimmt den besseren Fit.
 
 ## Racing Direction
 

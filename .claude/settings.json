@@ -18,7 +18,11 @@
     "deny": [
       "Bash(rm -rf /:*)",
       "Bash(git push --force:*)",
-      "Bash(git reset --hard:*)"
+      "Bash(git reset --hard:*)",
+      "Read(.env*)",
+      "Edit(.env*)",
+      "Write(.env*)",
+      "Read(.git/**)"
     ],
     "ask": [
       "Bash(git push:*)",
@@ -33,7 +37,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "case \"$CLAUDE_TOOL_INPUT\" in *'git commit'*) echo 'Reminder: Pre-Commit-Checks (tsc/eslint/build) laufen lassen via /precommit oder manuell.' >&2 ;; esac"
+            "command": "command -v jq >/dev/null || { echo 'Hook: jq fehlt, Commit-Reminder deaktiviert.' >&2; exit 0; }; COMMAND=$(jq -r '.tool_input.command'); case \"$COMMAND\" in *'git commit'*) echo 'Reminder: Pre-Commit-Checks (tsc/eslint/build) laufen lassen via /precommit oder manuell.' >&2 ;; esac"
           }
         ]
       }

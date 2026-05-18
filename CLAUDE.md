@@ -14,21 +14,21 @@
 
 > **Auto-Detect Regel:** Bei Stack-Änderung (neue Lib, Major-Bump) erneut auflisten, vom User verifizieren, dann Doku-URL aktualisieren. **Doku-URLs sind kanonische Wissensquelle** — bei API-/Verhaltens-Fragen `WebFetch` auf die URL statt aus Memory raten.
 
-- **Framework:** Next.js 16.2.6 (Turbopack via `--webpack` Dev) — Doku: https://nextjs.org/docs
+- **Framework:** Next.js 16.2.6 (Turbopack via `--webpack` Dev) — Doku: [Next.js Docs](https://nextjs.org/docs)
   - **WARNUNG:** Next.js 16 hat Breaking Changes ggü. älteren Versionen. Training-Daten sind veraltet. Vor neuem App-Router-/Server-Component-Code: relevante Page in `node_modules/next/dist/docs/` lesen oder Doku-URL fetchen. Deprecation-Hinweise im Build-Output beachten.
-- **UI:** React 19.2.4 — Doku: https://react.dev
-- **Sprache:** TypeScript 5 — Doku: https://www.typescriptlang.org/docs/
-- **Styling:** Tailwind CSS 4 (`@tailwindcss/postcss`) — Doku: https://tailwindcss.com/docs
-- **Karten:** MapLibre GL 5.24 — Doku: https://maplibre.org/maplibre-gl-js/docs/
-- **Lint:** ESLint 9 + `eslint-config-next` 16.2.4 — Doku: https://eslint.org/docs/latest/
+- **UI:** React 19.2.4 — Doku: [React Docs](https://react.dev)
+- **Sprache:** TypeScript 5 — Doku: [TypeScript Docs](https://www.typescriptlang.org/docs/)
+- **Styling:** Tailwind CSS 4 (`@tailwindcss/postcss`) — Doku: [Tailwind CSS Docs](https://tailwindcss.com/docs)
+- **Karten:** MapLibre GL 5.24 — Doku: [MapLibre GL Docs](https://maplibre.org/maplibre-gl-js/docs/)
+- **Lint:** ESLint 9 + `eslint-config-next` 16.2.4 — Doku: [ESLint Docs](https://eslint.org/docs/latest/)
 - **Node:** siehe `.nvmrc`
 
 ## Datenquellen (alle keyless, mit `next.revalidate`-Caching)
 
-- **Jolpica F1 API** (Ergast-kompatibel) — Schedule, Results, Qualifying, Standings. Wrapper: `lib/f1.ts`. Doku: https://api.jolpi.ca/
-- **MultiViewer API** — Corner-Positionen + S/F-Referenz (F1-Positioning-Grid). Doku: https://api.multiviewer.app/
-- **OpenF1** — Lap-Sector-Durations + Car-Location-Traces für Sector-Split-Placement. Wrapper: `lib/openf1.ts`. Doku: https://openf1.org/
-- **bacinger/f1-circuits** — Circuit-Outline-GeoJSON (lon/lat). Repo: https://github.com/bacinger/f1-circuits
+- **Jolpica F1 API** (Ergast-kompatibel) — Schedule, Results, Qualifying, Standings. Wrapper: `lib/f1.ts`. Doku: [Jolpica API](https://api.jolpi.ca/)
+- **MultiViewer API** — Corner-Positionen + S/F-Referenz (F1-Positioning-Grid). Doku: [MultiViewer API](https://api.multiviewer.app/)
+- **OpenF1** — Lap-Sector-Durations + Car-Location-Traces für Sector-Split-Placement. Wrapper: `lib/openf1.ts`. Doku: [OpenF1](https://openf1.org/)
+- **bacinger/f1-circuits** — Circuit-Outline-GeoJSON (lon/lat). Repo: [bacinger/f1-circuits](https://github.com/bacinger/f1-circuits)
 - **Esri World Imagery** — Satellite-Basemap-Tiles + Imagery-Metadaten
 
 Keine Env-Vars, keine Secrets.
@@ -57,10 +57,11 @@ Baut nummerierte Corners, S/F-Tick, drei Timing-Sector-Splits für die Hero-Map.
 ## Testing
 
 Aktuell **keine Test-Suite**. Verifikation via:
+
 - `npx tsc --noEmit` — Type-Check
 - `npx eslint .` — Lint
 - `npm run build` — Full Build
-- Manuell: `npm run dev`, http://localhost:3000
+- Manuell: `npm run dev`, [http://localhost:3000](http://localhost:3000)
 
 ## Git Workflow
 
