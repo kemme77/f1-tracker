@@ -1,0 +1,17 @@
+{
+  "$comment": "MCP Server Konfiguration. Doku: https://docs.claude.com/en/docs/claude-code/mcp",
+  "$examples": {
+    "filesystem-next-docs": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "./node_modules/next/dist/docs"]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "ghp_..."
+      }
+    }
+  },
+  "mcpServers": {}
+}

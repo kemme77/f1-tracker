@@ -1,0 +1,24 @@
+# Persönliche Overrides — f1-tracker
+
+> **Setup:** `cp CLAUDE.local.md.example CLAUDE.local.md`. Original gitignored.
+
+## Antwort-Sprache
+
+- Deutsch antworten, Code/Commits/PRs Englisch.
+
+## Antwort-Stil
+
+- Knapp, technisch.
+- Keine Zusammenfassungen wenn Diff selbsterklärend.
+
+## Umgebung
+
+- OS: <Linux / macOS / Windows>
+- Shell: <bash / zsh / fish>
+- Editor: <neovim / VS Code / JetBrains>
+
+## Persönliche Regeln
+
+- Vor jedem Commit `/precommit` ausführen (tsc + eslint + build).
+- Bei Next.js 16 API-Fragen: immer Doku-URL aus CLAUDE.md fetchen, niemals raten.
+- Geo-Code (`lib/multiviewer.ts`, `lib/circuitGeo.ts`) niemals ohne `lib/multiviewer.ts` Re-Read editieren — Similarity-Transform-Logik leicht zu brechen.

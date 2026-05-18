@@ -1,0 +1,42 @@
+{
+  "$comment": "Shared Claude Code Settings für f1-tracker. settings.local.json daneben für persönliche/maschinen-spezifische Permissions. Doku: https://docs.claude.com/en/docs/claude-code/settings",
+  "permissions": {
+    "allow": [
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npx next:*)",
+      "Read",
+      "Edit",
+      "Write"
+    ],
+    "deny": [
+      "Bash(rm -rf /:*)",
+      "Bash(git push --force:*)",
+      "Bash(git reset --hard:*)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(git commit:*)"
+    ]
+  },
+  "$hooksDoku": "https://docs.claude.com/en/docs/claude-code/hooks",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "case \"$CLAUDE_TOOL_INPUT\" in *'git commit'*) echo 'Reminder: Pre-Commit-Checks (tsc/eslint/build) laufen lassen via /precommit oder manuell.' >&2 ;; esac"
+          }
+        ]
+      }
+    ]
+  }
+}
