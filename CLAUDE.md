@@ -33,6 +33,20 @@
 
 Keine Env-Vars, keine Secrets.
 
+## Deployment
+
+- **Host:** Vercel, Auto-Deploy auf jeden `main`-Push.
+- **Public URL:** [https://f1-tracker.vercel.app/](https://f1-tracker.vercel.app/) — spiegelt latest `main` Production-Deployment.
+- **Vercel-IDs** (in `.vercel/project.json`, lokal/gitignored — auch hier dokumentiert für MCP-Calls):
+  - `teamId`: `team_4qQUpwIxAN7V9JwKMb1OAj0V` (slug `kemme77s-projects`)
+  - `projectId`: `prj_gyiydOEpAqF8KSN34YKQMoq8XAZl`
+- **MCP-Tools** (Claude-Web `claude_ai_Vercel` MCP, Tools mit Prefix `mcp__claude_ai_Vercel__`):
+  - `list_deployments` → letztes Deploy + Build-Status (`state: READY|ERROR|BUILDING`) prüfen.
+  - `get_deployment_build_logs` → Build-Fehler nach Push.
+  - `get_runtime_logs` → Server-Component-Errors live.
+  - `get_access_to_vercel_url` → authentifizierter Fetch von Preview-Deployments.
+- **Verification-Pattern:** Nach Push auf `main` letztes Deployment prüfen statt nur lokales `npm run build`. WebFetch der Public URL sieht nur SSR-HTML — kein MapLibre-Canvas. Für Visual Regression Screenshot-Tooling nötig.
+
 ## Domain-Knowledge (kritisch)
 
 ### Track Overlay (`lib/multiviewer.ts` → `getCircuitOverlay`)
